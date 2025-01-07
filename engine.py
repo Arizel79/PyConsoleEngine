@@ -9,8 +9,10 @@ from math import sqrt
 import enum
 from colorama import Fore
 
+
 class Colors:
     COLORS = BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = "black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"
+
 
 class Anchors:
     LEFT_ANCHOR = "left"
@@ -22,6 +24,7 @@ class Anchors:
     DOWN_ANCHOR = "down"
     CENTER_Y_ANCHOR = "centerY"
     DEFAULT_Y_ANCHOR = UP_ANCHOR
+
 
 class Styles:
     NORMAL_TEXT = "normal"
