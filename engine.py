@@ -147,33 +147,35 @@ class ConsoleScreen:
                     elif width <= 0:
                         self.setSymbolObj(x_, y_, symbol)
 
-    def setStr(self, x, y, string, style=None, anchor=DEFAULT_X_ANCHOR, ):
+    def setStr(self, x, y, string, style=None, anchor=Anchors.DEFAULT_X_ANCHOR, ):
         string = str(string)
 
-        if anchor == LEFT_ANCHOR:
+        if anchor == Anchors.LEFT_ANCHOR:
             sx = x
             sy = y
             d = 'h'
-        elif anchor == RIGHT_ANCHOR:
+        elif anchor == Anchors.RIGHT_ANCHOR:
             sx = x - len(string)
             sy = y
             d = 'h'
-        elif anchor == CENTER_X_ANCHOR:
+        elif anchor == Anchors.CENTER_X_ANCHOR:
             sx = x - len(string) // 2
             sy = y
             d = 'h'
-        elif anchor == UP_ANCHOR:
+        elif anchor == Anchors.UP_ANCHOR:
             sx = x
             sy = y
             d = 'v'
-        elif anchor == DOWN_ANCHOR:
+        elif anchor == Anchors.DOWN_ANCHOR:
             sy = x - len(string)
             sx = x
             d = 'v'
-        elif anchor == CENTER_Y_ANCHOR:
+        elif anchor == Anchors.CENTER_Y_ANCHOR:
             sy = y - len(string) // 2
             sx = x
             d = 'v'
+        else:
+            assert False
 
         for i in range(0, len(string), 1):
             if d == 'h':
@@ -254,7 +256,7 @@ def main():
 
         scr.drawCircle(10, 15, r=7, width=border_width, symbol=smbl2)
         scr.drawRectangle(5, 5, 18, 10, smbl3, isFill=True)
-        scr.setStr(w - 1, 0, f"vertical text ", style=txt, anchor=UP_ANCHOR)
+        scr.setStr(w - 1, 0, f"vertical text ", style=txt, anchor=Anchors.UP_ANCHOR)
         # scr.setSymbolObj(5, 5, smbl)
         scr.update()
 
