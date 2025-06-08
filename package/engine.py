@@ -11,7 +11,7 @@ from colorama import Fore
 
 
 class Colors:
-    COLORS = BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = "black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"
+    ALL_COLORS = BLACK, RED, GREEN, BLUE, YELLOW, MAGENTA, CYAN, WHITE = "black", "red", "green", "blue", "yellow", "magenta", "cyan", "white"
 
 
 class Anchors:
@@ -27,18 +27,18 @@ class Anchors:
 
 
 class Styles:
-    NORMAL_TEXT = "normal"
-    BOLD_TEXT = "bold"
+    NORMAL = "normal"
+    BOLD = "bold"
     BLINK = "blink"
-    UNDERLINE_TEXT = "underline"
-    REVERSE_TEXT = "reverse"
-    DIM_TEXT = "dim"
-    STANDOUT_TEXT = "standout"
-    PROTECT_TEXT = "protect"
-    ALTCHARSET_TEXT = "altcharset"
-    LEFT_TEXT = "left"
-    RIGHT_TEXT = "right"
-    TOP_TEXT = "top"
+    UNDERLINE = "underline"
+    REVERSE = "reverse"
+    DIM = "dim"
+    STANDOUT = "standout"
+    PROTECT = "protect"
+    ALTCHARSET = "altcharset"
+    LEFT = "left"
+    RIGHT = "right"
+    TOP = "top"
     HORIZONTAL = "horizontal"
 
 
@@ -76,7 +76,7 @@ class TextStyle:
         fg_id = self.COLORS[fg]
         bg_id = self.COLORS[bg]
         id = fg_id * 10 + bg_id + 1  # последний +1 чтобы 0 в ответе не было
-        # print(f"pr: fg:{fg_id} bg:{bg_id}, id:{id}")
+
         if not id in self.pairs:
             cu.init_pair(id, fg_id, bg_id)
             self.pairs.add(id)
@@ -86,7 +86,7 @@ class TextStyle:
 class Symbol:
     def __init__(self, symbol, fg='white', bg='black', *attrs, style=None):
         self.symbol = symbol
-        if style == None:
+        if style is None:
             self.style = TextStyle(fg, bg, *attrs)
         else:
             self.style = style
@@ -107,14 +107,10 @@ class ConsoleScreen:
         self.stdscr.move(0, 0)
         cu.curs_set(False)
 
-        # cu.update_lines_cols()
-
     def update(self):
         self.stdscr.refresh()
 
     def setSymbol(self, x, y, symbol, style=None):
-        h, w = self.getSize()
-        # if x >= 0 and y >= 0 and x < w and y < h:
         if style == None or not self.use_colors:
             style_code = 0
         else:
@@ -143,8 +139,8 @@ class ConsoleScreen:
             for y_ in range(y1, y2):
                 dx = x_ - x
                 dy = y_ - y
-                k = sqrt(dx ** 2 + (dy ** 2) * 3.7)
-                if k <= r:
+                k = sqrt(dx ** 2 + (dy ** 2) * 3)
+                if k + 0.5 <= r:
                     if width > 0 and k >= r - width:
                         self.setSymbolObj(x_, y_, symbol)
                     elif width <= 0:
@@ -155,37 +151,39 @@ class ConsoleScreen:
 
         if anchor == Anchors.LEFT_ANCHOR:
             sx = x
-            sy = y
-            d = 'h'
         elif anchor == Anchors.RIGHT_ANCHOR:
             sx = x - len(string)
-            sy = y
-            d = 'h'
         elif anchor == Anchors.CENTER_X_ANCHOR:
             sx = x - len(string) // 2
-            sy = y
-            d = 'h'
-        elif anchor == Anchors.UP_ANCHOR:
-            sx = x
-            sy = y
-            d = 'v'
-        elif anchor == Anchors.DOWN_ANCHOR:
-            sy = x - len(string)
-            sx = x
-            d = 'v'
-        elif anchor == Anchors.CENTER_Y_ANCHOR:
-            sy = y - len(string) // 2
-            sx = x
-            d = 'v'
         else:
             assert False
 
         for i in range(0, len(string), 1):
-            if d == 'h':
-                self.setSymbol(sx + i, y, string[i], style)
-            elif d == 'v':
-                self.setSymbol(sx, y + i, string[i], style)
+            self.setSymbol(sx + i, y, string[i], style)
 
+    def setColStr(self, x, y, string, style=None, anchor=Anchors.DEFAULT_X_ANCHOR, ):
+        string = str(string)
+        if anchor == Anchors.UP_ANCHOR:
+            sy = y
+        elif anchor == Anchors.DOWN_ANCHOR:
+            sy = x - len(string)
+        elif anchor == Anchors.CENTER_Y_ANCHOR:
+            sy = y - len(string) // 2
+        else:
+            assert False
+        for i in range(0, len(string), 1):
+            self.setSymbol(x, sy + i, string[i], style)
+
+    def setText(self, x, y, text, style=None, anchor_x=Anchors.DEFAULT_X_ANCHOR, anchor_y=Anchors.DEFAULT_Y_ANCHOR):
+    	lst = text.splitlines()
+    	if anchor_y == Anchors.UP_ANCHOR:
+    		sy = y
+    	elif anchor_y==Anchors.CENTER_Y_ANCHOR:
+    		sy = y - len(lst)//2
+    	elif anchor_y==Anchors.ANCHOR_DOWN:
+    		sy =  y - len(lst)
+    	for i, ln in enumerate(lst):
+            self.setStr(x, sy+i, ln, style, anchor=anchor_x)
     def wait_key(self):
         key = self.get_key(-1)
         return key
@@ -204,10 +202,25 @@ class ConsoleScreen:
         except cu.error:  # если ничего не нажато
             pass  # нам пофиг на это
 
-    def getSize(self):
+    def getHeight(self):
+        cu.update_lines_cols()
+        yx = self.stdscr.getmaxyx()
+        return yx[1]
+
+    def getWidth(self):
+        cu.update_lines_cols()
+        yx = self.stdscr.getmaxyx()
+        return yx[0]
+
+    def getHW(self):
         cu.update_lines_cols()
         yx = self.stdscr.getmaxyx()
         return yx[1], yx[0]
+
+    def getMaxCoords(self):
+        cu.update_lines_cols()
+        yx = self.stdscr.getmaxyx()
+        return yx[1] - 1, yx[0] - 1
 
     def clear(self):
         self.stdscr.erase()
@@ -229,14 +242,15 @@ def main():
     scr = ConsoleScreen()
     txt = TextStyle("white", "black")
     h1 = TextStyle("white", "black")
-    smbl = Symbol("#", "black", "black")
-    smbl2 = Symbol("•", Colors.BLUE, Colors.YELLOW)
-    smbl3 = Symbol("g", "blue", "black")
+    smbl = Symbol("#", "yellow", "black")
+    smbl2 = Symbol("*", Colors.GREEN, Colors.BLACK, Styles.DIM)
+    smbl3 = Symbol("#", style=TextStyle("red"))
     running = True
     border_width = 8.6
+    cx,cy,cr=15, 10, 5
     while running:
         key = scr.get_key(.1)
-        w, h = scr.getSize()
+        w, h = scr.getHW()
         if key == "q":
             scr.quit()
             running = False
@@ -254,12 +268,12 @@ def main():
         scr.setStr(0, 0, "PyConsoleEngine, (c) Kirill Fridrih", style=h1)
         scr.setStr(0, 1, f"Telegram: t.me/a7r9x3", style=txt)
         scr.setStr(0, 2, f"Prees W or S to edit border width", style=txt)
-        scr.setStr(0, h - 2, f"border width: {border_width}", style=txt)
         scr.setStr(0, h - 1, f"height and width: {h}, {w}", style=txt)
 
-        scr.drawCircle(10, 15, r=7, width=border_width, symbol=smbl2)
-        scr.drawRectangle(5, 5, 18, 10, smbl3, isFill=True)
-        scr.setStr(w - 1, 0, f"vertical text ", style=txt, anchor=Anchors.UP_ANCHOR)
+        scr.drawCircle(cx, cy, r=cr,  symbol=smbl2)
+
+        scr.setColStr(w - 1, 0, f"vertical text ", style=txt, anchor=Anchors.UP_ANCHOR)
+        scr.setText(w//2, h//2, """Hello, world!\nПривет, мир!\n1234567890\n-----\n""" * 3,TextStyle("black", "red"), anchor_x=Anchors.CENTER_X_ANCHOR, anchor_y=Anchors.CENTER_Y_ANCHOR)
         # scr.setSymbolObj(5, 5, smbl)
         scr.update()
 
