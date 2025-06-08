@@ -6,8 +6,7 @@ Installing:
 '''
 import curses as cu
 from math import sqrt
-import enum
-from colorama import Fore
+
 
 
 class Colors:

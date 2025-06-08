@@ -12,7 +12,7 @@ setup(
   description='Ascii games engine',
   long_description=readme(),
   long_description_content_type='text/markdown',
-  url='',
+  url='https://github.com/Arizel79/PyConsoleEngine',
   packages=find_packages(),
   install_requires=['windows-curses==2.4.0'],
   classifiers=[
@@ -22,7 +22,7 @@ setup(
   ],
   keywords='ascii',
   project_urls={
-    'Documentation': 'link'
+    'Documentation': 'https://github.com/Arizel79/PyConsoleEngine'
   },
-  python_requires='>=3.7'
+  python_requires='>=3.8'
 )
